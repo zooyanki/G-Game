@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Гардарики</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%232f6b4f'/></svg>"
+    />
+    <style>
+      html,
+      body,
+      #game {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background: #111;
+        overflow: hidden;
+        touch-action: none;
+      }
+
+      canvas {
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+      }
+
+      #rotate-hint {
+        display: none;
+      }
+
+      #touch {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        user-select: none;
+      }
+
+      #touch[hidden] {
+        display: none;
+      }
+
+      #stick,
+      #attack,
+      #swap,
+      #restart {
+        pointer-events: auto;
+        touch-action: none;
+      }
+
+      #stick {
+        position: absolute;
+        left: max(16px, env(safe-area-inset-left));
+        bottom: max(16px, env(safe-area-inset-bottom));
+        width: 116px;
+        height: 116px;
+        box-sizing: border-box;
+        border: 3px solid rgba(244, 240, 230, 0.85);
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.35);
+      }
+
+      #nub {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 48px;
+        height: 48px;
+        margin: -24px 0 0 -24px;
+        border-radius: 50%;
+        background: rgba(244, 240, 230, 0.92);
+      }
+
+      #attack,
+      #swap {
+        position: absolute;
+        right: max(16px, env(safe-area-inset-right));
+        width: 84px;
+        height: 84px;
+        border: 3px solid #f4f0e6;
+        border-radius: 50%;
+        background: #1a1a1a;
+        color: #f4f0e6;
+        font-family: ui-monospace, monospace;
+        font-size: 16px;
+      }
+
+      #attack {
+        bottom: max(24px, env(safe-area-inset-bottom));
+      }
+
+      #swap {
+        bottom: calc(max(24px, env(safe-area-inset-bottom)) + 100px);
+      }
+
+      #restart {
+        position: absolute;
+        left: 50%;
+        top: 58%;
+        transform: translate(-50%, -50%);
+        border: 3px solid #f4f0e6;
+        background: #1a1a1a;
+        color: #f4f0e6;
+        font-family: ui-monospace, monospace;
+        font-size: 18px;
+        padding: 12px 18px;
+      }
+
+      #restart[hidden] {
+        display: none;
+      }
+
+      @media (orientation: portrait) and (pointer: coarse) {
+        #rotate-hint {
+          position: fixed;
+          inset: 0;
+          z-index: 5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+          background: #111;
+          color: #f4f0e6;
+          font-family: ui-monospace, monospace;
+          font-size: 18px;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="rotate-hint">Поверните телефон горизонтально</div>
+    <div id="touch" hidden>
+      <div id="stick"><div id="nub"></div></div>
+      <button id="attack" type="button">Меч</button>
+      <button id="swap" type="button">Смена</button>
+      <button id="restart" type="button" hidden>Ещё раз</button>
+    </div>
+    <script type="module" src="/src/main.ts?v=2"></script>
+  </body>
+</html>
