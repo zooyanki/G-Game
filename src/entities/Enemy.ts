@@ -3,8 +3,11 @@ import { AGGRO_RANGE, ENEMY_LIVES, ENEMY_SPEED } from '../constants';
 
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private lives = ENEMY_LIVES;
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  readonly missionId?: string;
+
+  constructor(scene: Phaser.Scene, x: number, y: number, missionId?: string) {
     super(scene, x, y, 'enemy');
+    this.missionId = missionId;
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.setDepth(10);
@@ -41,5 +44,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
     this.disableBody(true, true);
     this.scene.add.image(this.x, this.y, 'coin').setDepth(4).setData('coin', true);
+    this.scene.events.emit('enemy-killed', this.missionId);
   }
 }

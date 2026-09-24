@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { ARROW_SPEED, WORLD_HEIGHT, WORLD_WIDTH, type Facing } from '../constants';
+import { ARROW_SPEED, type Facing } from '../constants';
 
 /**
  * Летит сама на событии update сцены, без физического тела.
@@ -32,12 +32,17 @@ export class Arrow extends Phaser.GameObjects.Sprite {
   }
 
   private onUpdate(_time: number, delta: number) {
+    if (!this.active || !this.scene || !this.scene.sys.isActive()) return;
+
     this.prevX = this.x;
     this.prevY = this.y;
     this.x += (this.vx * delta) / 1000;
     this.y += (this.vy * delta) / 1000;
 
-    if (this.x < 0 || this.x > WORLD_WIDTH || this.y < 0 || this.y > WORLD_HEIGHT) {
+    const world = this.scene.physics?.world;
+    if (!world) return;
+    const bounds = world.bounds;
+    if (this.x < bounds.x || this.x > bounds.right || this.y < bounds.y || this.y > bounds.bottom) {
       this.kill();
     }
   }

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from './constants';
 import { setupTouchControls } from './input/touchControls';
-import { ShoreScene } from './scenes/ShoreScene';
+import { WorldScene } from './scenes/WorldScene';
 
 setupTouchControls();
 
@@ -30,5 +30,5 @@ new Phaser.Game({
     antialias: false,
     roundPixels: true,
   },
-  scene: [ShoreScene],
+  scene: [WorldScene],
 });
