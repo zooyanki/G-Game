@@ -1,17 +1,19 @@
-import { input } from './InputState';
+import { input, type TouchAction } from './InputState';
 
-/** Кнопки поверх игры. На компьютере спрятаны, на телефоне — джойстик и удар. */
+export type TouchMode = 'level' | 'sortie' | 'river' | 'card' | 'none';
+
+const HOLD_BUTTONS = new Set<TouchAction>(['jump', 'attack']);
+
+function isTouch() {
+  return window.matchMedia('(pointer: coarse)').matches;
+}
+
+/** Кнопки поверх игры. На компьютере спрятаны, на телефоне — джойстик, прыжок, удар и смена. */
 export function setupTouchControls() {
   const root = document.getElementById('touch');
   const stick = document.getElementById('stick');
   const nub = document.getElementById('nub');
-  const attack = document.getElementById('attack');
-  const swap = document.getElementById('swap');
-  const restart = document.getElementById('restart');
-  if (!root || !stick || !nub || !attack || !swap || !restart) return;
-
-  const coarse = window.matchMedia('(pointer: coarse)').matches;
-  if (!coarse) return;
+  if (!root || !stick || !nub || !isTouch()) return;
 
   root.hidden = false;
 
@@ -61,34 +63,74 @@ export function setupTouchControls() {
   stick.addEventListener('pointerup', endStick);
   stick.addEventListener('pointercancel', endStick);
 
-  attack.addEventListener('pointerdown', (event) => {
-    event.preventDefault();
-    input.queueAttack();
-  });
+  for (const button of root.querySelectorAll<HTMLElement>('[data-action]')) {
+    const action = button.dataset.action as TouchAction;
+    const setHeld = (held: boolean) => {
+      if (action === 'jump') input.jumpHeld = held;
+      if (action === 'attack') input.attackHeld = held;
+    };
 
-  swap.addEventListener('pointerdown', (event) => {
-    event.preventDefault();
-    input.queueSwap();
-  });
-
-  restart.addEventListener('pointerdown', (event) => {
-    event.preventDefault();
-    input.queueRestart();
-  });
+    button.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      if (HOLD_BUTTONS.has(action)) button.setPointerCapture(event.pointerId);
+      setHeld(true);
+      input.queue(action);
+    });
+    const release = (event: PointerEvent) => {
+      if (button.hasPointerCapture(event.pointerId)) button.releasePointerCapture(event.pointerId);
+      setHeld(false);
+    };
+    button.addEventListener('pointerup', release);
+    button.addEventListener('pointercancel', release);
+  }
 }
 
-export function setRestartVisible(visible: boolean) {
-  const stick = document.getElementById('stick');
+/** Какие кнопки видны: в уровне всё, на реке — джойстик и «Войти», на карточке — только её кнопки. */
+export function setTouchMode(mode: TouchMode) {
+  if (!isTouch()) return;
+  const show = (id: string, visible: boolean) => {
+    const el = document.getElementById(id);
+    if (el) el.hidden = !visible;
+  };
+
+  show('stick', mode === 'level' || mode === 'sortie' || mode === 'river');
+  show('attack', mode === 'level' || mode === 'sortie' || mode === 'river');
+  show('jump', mode === 'level');
+  show('swap', mode === 'level' || mode === 'sortie');
+  show('super', mode === 'level' || mode === 'sortie');
+  show('card-buttons', mode === 'card');
+
+  if (mode !== 'level' && mode !== 'sortie' && mode !== 'river') {
+    input.moveX = 0;
+    input.moveY = 0;
+    input.attackHeld = false;
+    input.jumpHeld = false;
+    const nub = document.getElementById('nub');
+    if (nub) nub.style.transform = '';
+  }
+  input.clearTransient();
+}
+
+/** Кнопка луча тусклая, пока шкала благодати не полна, и светится, когда можно бить. */
+export function setSuperReady(ready: boolean) {
+  document.getElementById('super')?.classList.toggle('ready', ready);
+}
+
+export function setAttackLabel(text: string) {
   const attack = document.getElementById('attack');
-  const swap = document.getElementById('swap');
-  const restart = document.getElementById('restart');
-  if (!stick || !attack || !swap || !restart) return;
+  if (attack) attack.textContent = text;
+}
 
-  const coarse = window.matchMedia('(pointer: coarse)').matches;
-  if (!coarse) return;
-
-  stick.hidden = visible;
-  attack.hidden = visible;
-  swap.hidden = visible;
-  restart.hidden = !visible;
+/** Подписи кнопок карточки: «Ещё раз» / «К реке» или одна «Дальше». */
+export function setCardButtons(retry: string | null, river: string | null) {
+  const retryButton = document.getElementById('retry');
+  const riverButton = document.getElementById('river');
+  if (retryButton) {
+    retryButton.hidden = !retry;
+    retryButton.textContent = retry ?? '';
+  }
+  if (riverButton) {
+    riverButton.hidden = !river;
+    riverButton.textContent = river ?? '';
+  }
 }

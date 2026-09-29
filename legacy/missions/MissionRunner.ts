@@ -75,7 +75,8 @@ export class MissionRunner {
       return `${mission.title} (${this.killed}/${need})`;
     }
     if (mission.kind === 'fetch') {
-      return this.hasItem ? `${mission.title} (есть амулет)` : `Найди амулет и ${mission.title.toLowerCase()}`;
+      const item = mission.itemId === 'seal' ? 'печать' : mission.itemId === 'amulet' ? 'амулет' : 'предмет';
+      return this.hasItem ? `${mission.title} (есть ${item})` : `Найди ${item} и ${mission.title.toLowerCase()}`;
     }
     return mission.title;
   }

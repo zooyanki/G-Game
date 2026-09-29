@@ -44,10 +44,12 @@
         display: none;
       }
 
+      #touch [hidden] {
+        display: none;
+      }
+
       #stick,
-      #attack,
-      #swap,
-      #restart {
+      #touch button {
         pointer-events: auto;
         touch-action: none;
       }
@@ -75,43 +77,74 @@
         background: rgba(244, 240, 230, 0.92);
       }
 
+      #jump,
       #attack,
-      #swap {
+      #swap,
+      #super {
         position: absolute;
-        right: max(16px, env(safe-area-inset-right));
-        width: 84px;
-        height: 84px;
         border: 3px solid #f4f0e6;
         border-radius: 50%;
-        background: #1a1a1a;
+        background: rgba(26, 26, 26, 0.85);
         color: #f4f0e6;
         font-family: ui-monospace, monospace;
-        font-size: 16px;
+        font-size: 15px;
+        padding: 0;
+      }
+
+      #jump {
+        right: max(16px, env(safe-area-inset-right));
+        bottom: max(20px, env(safe-area-inset-bottom));
+        width: 92px;
+        height: 92px;
       }
 
       #attack {
-        bottom: max(24px, env(safe-area-inset-bottom));
+        right: calc(max(16px, env(safe-area-inset-right)) + 106px);
+        bottom: max(20px, env(safe-area-inset-bottom));
+        width: 82px;
+        height: 82px;
       }
 
       #swap {
-        bottom: calc(max(24px, env(safe-area-inset-bottom)) + 100px);
+        right: calc(max(16px, env(safe-area-inset-right)) + 16px);
+        bottom: calc(max(20px, env(safe-area-inset-bottom)) + 106px);
+        width: 62px;
+        height: 62px;
+        font-size: 13px;
       }
 
-      #restart {
+      #super {
+        right: calc(max(16px, env(safe-area-inset-right)) + 116px);
+        bottom: calc(max(20px, env(safe-area-inset-bottom)) + 96px);
+        width: 62px;
+        height: 62px;
+        font-size: 13px;
+        opacity: 0.35;
+      }
+
+      #super.ready {
+        opacity: 1;
+        border-color: #f2d48a;
+        color: #f2d48a;
+        box-shadow: 0 0 14px rgba(242, 212, 138, 0.9);
+      }
+
+      #card-buttons {
         position: absolute;
         left: 50%;
-        top: 58%;
+        top: 70%;
         transform: translate(-50%, -50%);
+        display: flex;
+        gap: 16px;
+      }
+
+      #card-buttons button {
         border: 3px solid #f4f0e6;
         background: #1a1a1a;
         color: #f4f0e6;
         font-family: ui-monospace, monospace;
         font-size: 18px;
         padding: 12px 18px;
-      }
-
-      #restart[hidden] {
-        display: none;
       }
 
       @media (orientation: portrait) and (pointer: coarse) {
@@ -137,10 +170,15 @@
     <div id="rotate-hint">Поверните телефон горизонтально</div>
     <div id="touch" hidden>
       <div id="stick"><div id="nub"></div></div>
-      <button id="attack" type="button">Меч</button>
-      <button id="swap" type="button">Смена</button>
-      <button id="restart" type="button" hidden>Ещё раз</button>
+      <button id="attack" type="button" data-action="attack">Меч</button>
+      <button id="jump" type="button" data-action="jump">Прыжок</button>
+      <button id="swap" type="button" data-action="swap">Смена</button>
+      <button id="super" type="button" data-action="super">Луч</button>
+      <div id="card-buttons" hidden>
+        <button id="retry" type="button" data-action="retry">Ещё раз</button>
+        <button id="river" type="button" data-action="river">К реке</button>
+      </div>
     </div>
-    <script type="module" src="/src/main.ts?v=3"></script>
+    <script type="module" src="/src/main.ts?v=6"></script>
   </body>
 </html>

@@ -46,6 +46,7 @@ export class WorldScene extends Phaser.Scene {
   private missionLabel!: Phaser.GameObjects.Text;
   private interactHint!: Phaser.GameObjects.Text;
   private lootPanel: Phaser.GameObjects.Container | null = null;
+  private victoryCta: Phaser.GameObjects.Text | null = null;
   private marker!: Phaser.GameObjects.Image;
   private hearts: Phaser.GameObjects.Image[] = [];
   private coinLabel!: Phaser.GameObjects.Text;
@@ -73,6 +74,8 @@ export class WorldScene extends Phaser.Scene {
     this.hearts = [];
     this.portraits = [];
     this.lootPanel = null;
+    this.victoryCta?.destroy();
+    this.victoryCta = null;
 
     createTextures(this);
 
@@ -142,6 +145,7 @@ export class WorldScene extends Phaser.Scene {
     this.hearts = [];
     this.portraits = [];
     this.lootPanel = null;
+    this.victoryCta = null;
   }
 
   update() {
@@ -178,8 +182,10 @@ export class WorldScene extends Phaser.Scene {
       const wantsAttack = this.attackKey.isDown || input.hasAttack();
       if (wantsAttack) {
         const shot = this.active.tryAttack(now);
-        if (shot instanceof Phaser.Geom.Rectangle) this.swing(shot);
-        else if (shot) this.arrows.push(shot);
+        // Arrow — наш класс (instanceof надёжен). Rectangle из Phaser после Vite
+        // может не пройти instanceof — для мечника достаточно «не стрела».
+        if (shot instanceof Arrow) this.arrows.push(shot);
+        else if (shot) this.swing(shot);
         if (shot) input.clearAttack();
       }
     }
@@ -225,7 +231,8 @@ export class WorldScene extends Phaser.Scene {
       }
 
       if (obj.type === 'item' && props.itemId) {
-        const sprite = this.physics.add.staticImage(cx, cy, 'amulet');
+        const texture = props.itemId === 'seal' ? 'seal' : 'amulet';
+        const sprite = this.physics.add.staticImage(cx, cy, texture);
         sprite.setDepth(6);
         sprite.setData('itemId', props.itemId);
         this.items.push({ itemId: props.itemId, sprite });
@@ -427,8 +434,32 @@ export class WorldScene extends Phaser.Scene {
     this.outcome = 'victory';
     this.freeze();
     const onPhone = window.matchMedia('(pointer: coarse)').matches;
-    this.banner.setText(onPhone ? 'Победа' : 'Победа\nПробел — ещё раз');
+    this.banner.setText(
+      onPhone
+        ? 'Путь дальше — в Гардарики'
+        : 'Путь дальше — в Гардарики\nПробел — ещё раз',
+    );
     this.banner.setVisible(true);
+
+    this.victoryCta?.destroy();
+    this.victoryCta = this.add
+      .text(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 0.52, 'Открыть сайт Гардарики', {
+        fontFamily: 'monospace',
+        fontSize: '10px',
+        color: '#f2d48a',
+        backgroundColor: '#111111',
+        padding: { x: 8, y: 6 },
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(101)
+      .setResolution(1)
+      .setInteractive({ useHandCursor: true });
+
+    this.victoryCta.on('pointerup', () => {
+      window.open('https://gardariki-game.ru/', '_blank', 'noopener,noreferrer');
+    });
+
     setRestartVisible(true);
   }
 

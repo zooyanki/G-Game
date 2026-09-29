@@ -1,49 +1,25 @@
-/** Куда сейчас тянет джойстик и какие кнопки нажаты. Клавиатура пишет сюда же из сцены. */
+export type TouchAction = 'jump' | 'attack' | 'swap' | 'super' | 'retry' | 'river';
+
+/** Куда тянет джойстик и какие кнопки нажаты на экране. Клавиатуру читает `Controls`. */
 export class InputState {
   moveX = 0;
   moveY = 0;
+  jumpHeld = false;
+  attackHeld = false;
 
-  private attackQueued = false;
-  private restartQueued = false;
-  private swapQueued = false;
+  private queued = new Set<TouchAction>();
 
-  queueAttack() {
-    this.attackQueued = true;
+  queue(action: TouchAction) {
+    this.queued.add(action);
   }
 
-  hasAttack() {
-    return this.attackQueued;
+  consume(action: TouchAction) {
+    return this.queued.delete(action);
   }
 
-  clearAttack() {
-    this.attackQueued = false;
-  }
-
-  queueSwap() {
-    this.swapQueued = true;
-  }
-
-  consumeSwap() {
-    const queued = this.swapQueued;
-    this.swapQueued = false;
-    return queued;
-  }
-
-  queueRestart() {
-    this.restartQueued = true;
-  }
-
-  consumeRestart() {
-    const queued = this.restartQueued;
-    this.restartQueued = false;
-    return queued;
-  }
-
-  /** Сбрасывает разовые нажатия. Вектор джойстика не трогает: палец может ещё лежать на экране. */
+  /** Сбрасывает разовые нажатия. Удержание не трогает: палец может ещё лежать на экране. */
   clearTransient() {
-    this.attackQueued = false;
-    this.restartQueued = false;
-    this.swapQueued = false;
+    this.queued.clear();
   }
 }
 

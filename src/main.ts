@@ -1,16 +1,19 @@
 import Phaser from 'phaser';
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from './constants';
 import { setupTouchControls } from './input/touchControls';
-import { WorldScene } from './scenes/WorldScene';
+import { DockScene } from './scenes/DockScene';
+import { LevelScene } from './scenes/LevelScene';
+import { RiverScene } from './scenes/RiverScene';
+import { SortieScene } from './scenes/SortieScene';
 
 setupTouchControls();
 
-new Phaser.Game({
+const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
   width: SCREEN_WIDTH,
   height: SCREEN_HEIGHT,
-  backgroundColor: '#c2a36b',
+  backgroundColor: '#111111',
   pixelArt: true,
   disableContextMenu: true,
   scale: {
@@ -30,5 +33,7 @@ new Phaser.Game({
     antialias: false,
     roundPixels: true,
   },
-  scene: [WorldScene],
+  scene: [RiverScene, DockScene, SortieScene, LevelScene],
 });
+
+if (import.meta.env.DEV) Object.assign(window, { game });
